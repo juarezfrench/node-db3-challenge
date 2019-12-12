@@ -1,11 +1,11 @@
 const express = require('express');
 
-const Schemes = require('./scheme-model.js');
+const Schemes = require('./scheme-model');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  Schemes.find()
+  Schemes.allSchemes()
   .then(schemes => {
     res.json(schemes);
   })
@@ -16,8 +16,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-
-  Schemes.findById(id)
+Schemes.findById(id)
   .then(scheme => {
     if (scheme) {
       res.json(scheme);
@@ -78,6 +77,28 @@ router.post('/:id/steps', (req, res) => {
   });
 });
 
+// router.put("/:id", (req, res) => {
+//   const id = req.id;
+//   const changes = req.body;
+
+//   Schemes.update(id)
+//     .where({ id: req.params.id }) // ALWAYS FILTER ON UPDATE (AND DELETE)
+//     .update(changes)
+//     .then(count => {
+//       if (count > 0) {
+//         res.status(200).json({ message: `${count} record(s) updated` });
+//       } else {
+//         res.status(404).json({ message: "scheme not found" });
+//       }
+//     })
+//     .catch(error => {
+//       console.log(error);
+//       res.status(500).json({
+//         errorMessage: "Error updating the car"
+//       });
+//     });
+// });
+
 router.put('/:id', (req, res) => {
   const { id } = req.params;
   const changes = req.body;
@@ -85,7 +106,7 @@ router.put('/:id', (req, res) => {
   Schemes.findById(id)
   .then(scheme => {
     if (scheme) {
-      Schemes.update(changes, id)
+      Schemes.update(id,changes)
       .then(updatedScheme => {
         res.json(updatedScheme);
       });
@@ -102,6 +123,7 @@ router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
   Schemes.remove(id)
+  .where({ id: req.params.id })
   .then(deleted => {
     if (deleted) {
       res.json({ removed: deleted });
